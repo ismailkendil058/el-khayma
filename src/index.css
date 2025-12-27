@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Salon de Thé - Luxury Minimalist Design System */
+    --background: 40 8% 90%; /* #E5E4DF */
+    --foreground: 300 3% 23%; /* #3B393B */
+
+    --card: 40 10% 95%;
+    --card-foreground: 300 3% 23%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 300 3% 23%;
+
+    --primary: 300 3% 23%; /* #3B393B */
+    --primary-foreground: 40 8% 95%;
+
+    --secondary: 40 6% 85%;
+    --secondary-foreground: 300 3% 23%;
+
+    --muted: 40 5% 88%;
+    --muted-foreground: 300 3% 40%;
+
+    --accent: 30 15% 80%;
+    --accent-foreground: 300 3% 20%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 145 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 90% 55%;
+    --warning-foreground: 300 3% 20%;
+
+    --border: 40 8% 82%;
+    --input: 40 8% 82%;
+    --ring: 300 3% 23%;
+
+    --radius: 1rem;
+
+    /* Custom Shadows */
+    --shadow-soft: 0 2px 8px -2px rgba(59, 57, 59, 0.08);
+    --shadow-medium: 0 4px 16px -4px rgba(59, 57, 59, 0.12);
+    --shadow-elevated: 0 8px 32px -8px rgba(59, 57, 59, 0.16);
+
+    /* Spacing */
+    --spacing-touch: 3rem; /* 48px minimum touch target */
+
+    /* Sidebar (not used but required) */
+    --sidebar-background: 40 8% 90%;
+    --sidebar-foreground: 300 3% 23%;
+    --sidebar-primary: 300 3% 23%;
+    --sidebar-primary-foreground: 40 8% 95%;
+    --sidebar-accent: 40 6% 85%;
+    --sidebar-accent-foreground: 300 3% 23%;
+    --sidebar-border: 40 8% 82%;
+    --sidebar-ring: 300 3% 23%;
+  }
+
+  .dark {
+    --background: 300 3% 12%;
+    --foreground: 40 8% 90%;
+
+    --card: 300 3% 16%;
+    --card-foreground: 40 8% 90%;
+
+    --popover: 300 3% 14%;
+    --popover-foreground: 40 8% 90%;
+
+    --primary: 40 8% 90%;
+    --primary-foreground: 300 3% 12%;
+
+    --secondary: 300 3% 20%;
+    --secondary-foreground: 40 8% 90%;
+
+    --muted: 300 3% 20%;
+    --muted-foreground: 40 5% 60%;
+
+    --accent: 300 5% 25%;
+    --accent-foreground: 40 8% 90%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 300 3% 22%;
+    --input: 300 3% 22%;
+    --ring: 40 8% 90%;
+
+    --sidebar-background: 300 3% 12%;
+    --sidebar-foreground: 40 8% 90%;
+    --sidebar-primary: 40 8% 90%;
+    --sidebar-primary-foreground: 300 3% 12%;
+    --sidebar-accent: 300 3% 20%;
+    --sidebar-accent-foreground: 40 8% 90%;
+    --sidebar-border: 300 3% 22%;
+    --sidebar-ring: 40 8% 90%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+}
+
+@layer components {
+  /* Touch-optimized button base */
+  .touch-target {
+    @apply min-h-[48px] min-w-[48px];
+  }
+
+  /* Product card */
+  .product-card {
+    @apply bg-card rounded-2xl p-4 shadow-soft transition-all duration-200 active:scale-[0.98] active:shadow-medium;
+  }
+
+  /* Quick price button */
+  .quick-price-btn {
+    @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-xl px-6 py-4 text-lg font-semibold transition-all duration-150 active:scale-95;
+  }
+
+  /* Bottom sheet style */
+  .bottom-sheet {
+    @apply fixed inset-x-0 bottom-0 bg-card rounded-t-3xl shadow-elevated p-6 pb-safe;
+  }
+
+  /* Safe area padding */
+  .pb-safe {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Smooth scroll */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}
