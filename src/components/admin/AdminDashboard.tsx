@@ -7,7 +7,8 @@ import {
   Receipt, 
   Wallet,
   DollarSign,
-  Package
+  Package,
+  X
 } from 'lucide-react';
 import { format, isToday, isThisMonth, isThisYear, startOfDay, startOfMonth, startOfYear, eachDayOfInterval, endOfMonth, isSameDay, isSameMonth, eachMonthOfInterval, endOfYear } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -16,12 +17,14 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } fro
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type DateFilter = 'today' | 'month' | 'year';
+type ChartType = 'month' | 'year' | null;
 
 export function AdminDashboard() {
   const { sales, expenses, products } = useAppStore();
   
   const [selectedMonthDate, setSelectedMonthDate] = useState(new Date());
   const [selectedYearDate, setSelectedYearDate] = useState(new Date());
+  const [fullscreenChart, setFullscreenChart] = useState<ChartType>(null);
 
   const filterDates = useMemo(() => {
     const now = new Date();
@@ -205,87 +208,31 @@ export function AdminDashboard() {
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-card rounded-2xl p-5 shadow-soft">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-medium text-foreground">Mois</h4>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedMonthDate(new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth() - 1))}
-                    className="p-1 hover:bg-secondary rounded-md transition"
-                    title="Mois précédent"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <span className="text-xs font-semibold text-foreground min-w-24 text-center">
-                    {format(selectedMonthDate, 'MMMM yyyy', { locale: fr })}
-                  </span>
-                  <button
-                    onClick={() => setSelectedMonthDate(new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth() + 1))}
-                    className="p-1 hover:bg-secondary rounded-md transition"
-                    title="Mois suivant"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+            <button
+              onClick={() => setFullscreenChart('month')}
+              className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-lg transition hover:scale-105 border border-transparent hover:border-primary/30"
+            >
+              <div className="flex flex-col items-center justify-center gap-3">
+                <TrendingUp className="w-8 h-8 text-success" />
+                <span className="text-sm font-medium text-foreground">Graphique Mensuel</span>
+                <span className="text-xs text-muted-foreground">
+                  {format(selectedMonthDate, 'MMMM yyyy', { locale: fr })}
+                </span>
               </div>
-              <ChartContainer config={{
-                revenue: { label: 'Chiffre d\'affaires', color: 'hsl(var(--success))' },
-                net: { label: 'Bénéfice net', color: 'hsl(var(--primary))' },
-              }} className="h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '12px' }} />
-                    <ChartTooltip />
-                    <ChartLegend />
-                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--success))" fill="hsl(var(--success))" fillOpacity={0.2} />
-                    <Area type="monotone" dataKey="net" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+            </button>
 
-            <div className="bg-card rounded-2xl p-5 shadow-soft">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-medium text-foreground">Année</h4>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setSelectedYearDate(new Date(selectedYearDate.getFullYear() - 1, 0))}
-                    className="p-1 hover:bg-secondary rounded-md transition"
-                    title="Année précédente"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <span className="text-xs font-semibold text-foreground min-w-12 text-center">
-                    {selectedYearDate.getFullYear()}
-                  </span>
-                  <button
-                    onClick={() => setSelectedYearDate(new Date(selectedYearDate.getFullYear() + 1, 0))}
-                    className="p-1 hover:bg-secondary rounded-md transition"
-                    title="Année suivante"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+            <button
+              onClick={() => setFullscreenChart('year')}
+              className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-lg transition hover:scale-105 border border-transparent hover:border-primary/30"
+            >
+              <div className="flex flex-col items-center justify-center gap-3">
+                <TrendingUp className="w-8 h-8 text-primary" />
+                <span className="text-sm font-medium text-foreground">Graphique Annuel</span>
+                <span className="text-xs text-muted-foreground">
+                  {selectedYearDate.getFullYear()}
+                </span>
               </div>
-              <ChartContainer config={{
-                revenue: { label: 'Chiffre d\'affaires', color: 'hsl(var(--success))' },
-                net: { label: 'Bénéfice net', color: 'hsl(var(--primary))' },
-              }} className="h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={yearChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" style={{ fontSize: '12px' }} />
-                    <ChartTooltip />
-                    <ChartLegend />
-                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--success))" fill="hsl(var(--success))" fillOpacity={0.2} />
-                    <Area type="monotone" dataKey="net" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </div>
+            </button>
           </div>
         </div>
 
@@ -339,6 +286,76 @@ export function AdminDashboard() {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fullscreen Chart Modal */}
+        {fullscreenChart && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-0">
+            <div className="bg-card rounded-2xl w-full h-full md:h-[90vh] md:w-[90vw] shadow-2xl flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 md:p-6 border-b border-border">
+                <h2 className="text-lg md:text-2xl font-bold text-foreground">
+                  {fullscreenChart === 'month' ? 'Graphique Mensuel' : 'Graphique Annuel'}
+                </h2>
+                <button
+                  onClick={() => setFullscreenChart(null)}
+                  className="p-2 hover:bg-secondary rounded-lg transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Navigation Controls */}
+              <div className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-border bg-secondary/30">
+                <button
+                  onClick={() => fullscreenChart === 'month' 
+                    ? setSelectedMonthDate(new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth() - 1))
+                    : setSelectedYearDate(new Date(selectedYearDate.getFullYear() - 1, 0))
+                  }
+                  className="p-2 hover:bg-secondary rounded-lg transition"
+                >
+                  <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+                
+                <span className="text-sm md:text-base font-semibold text-foreground">
+                  {fullscreenChart === 'month' 
+                    ? format(selectedMonthDate, 'MMMM yyyy', { locale: fr })
+                    : selectedYearDate.getFullYear()
+                  }
+                </span>
+                
+                <button
+                  onClick={() => fullscreenChart === 'month' 
+                    ? setSelectedMonthDate(new Date(selectedMonthDate.getFullYear(), selectedMonthDate.getMonth() + 1))
+                    : setSelectedYearDate(new Date(selectedYearDate.getFullYear() + 1, 0))
+                  }
+                  className="p-2 hover:bg-secondary rounded-lg transition"
+                >
+                  <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+                </button>
+              </div>
+
+              {/* Chart Container */}
+              <div className="flex-1 overflow-auto p-4 md:p-6">
+                <ChartContainer config={{
+                  revenue: { label: 'Chiffre d\'affaires', color: 'hsl(var(--success))' },
+                  net: { label: 'Bénéfice net', color: 'hsl(var(--primary))' },
+                }} className="h-full w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={fullscreenChart === 'month' ? monthChartData : yearChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                      <YAxis stroke="hsl(var(--muted-foreground))" />
+                      <ChartTooltip />
+                      <ChartLegend />
+                      <Area type="monotone" dataKey="revenue" stroke="hsl(var(--success))" fill="hsl(var(--success))" fillOpacity={0.15} />
+                      <Area type="monotone" dataKey="net" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.15} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
             </div>
           </div>
         )}
