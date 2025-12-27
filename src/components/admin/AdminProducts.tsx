@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppStore } from '@/stores/appStore';
 import { AdminLayout } from './AdminLayout';
 import { Product, CATEGORY_LABELS, ProductCategory } from '@/types';
@@ -108,14 +108,28 @@ export function AdminProducts() {
       {showForm && (
         <ProductForm
           product={editingProduct}
+          existingProducts={products}
           onClose={handleClose}
           onSave={(data) => {
             if (editingProduct) {
               updateProduct(editingProduct.id, data);
               toast.success('Produit mis à jour');
             } else {
-              addProduct(data as Omit<Product, 'id' | 'createdAt' | 'updatedAt'>);
-              toast.success('Produit ajouté');
+              // Check if product with same name already exists
+              const existingProduct = products.find(
+                (p) => p.name.toLowerCase() === (data.name || '').toLowerCase()
+              );
+              
+              if (existingProduct) {
+                // Merge quantities with existing product
+                updateProduct(existingProduct.id, {
+                  stock: existingProduct.stock + (parseFloat(data.stock as string) || 0),
+                });
+                toast.success('Quantité ajoutée au produit existant');
+              } else {
+                addProduct(data as Omit<Product, 'id' | 'createdAt' | 'updatedAt'>);
+                toast.success('Produit ajouté');
+              }
             }
             handleClose();
           }}
@@ -132,13 +146,15 @@ export function AdminProducts() {
 
 interface ProductFormProps {
   product: Product | null;
+  existingProducts: Product[];
   onClose: () => void;
   onSave: (data: Partial<Product>) => void;
   onDelete?: () => void;
 }
 
-function ProductForm({ product, onClose, onSave, onDelete }: ProductFormProps) {
+function ProductForm({ product, existingProducts, onClose, onSave, onDelete }: ProductFormProps) {
   const [name, setName] = useState(product?.name || '');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [category, setCategory] = useState<ProductCategory>(product?.category || 'fruits_secs');
   const [sellingType, setSellingType] = useState<'kilo' | 'unit'>(product?.sellingType || 'kilo');
   const [costPrice, setCostPrice] = useState(product?.costPrice?.toString() || '');
@@ -146,6 +162,23 @@ function ProductForm({ product, onClose, onSave, onDelete }: ProductFormProps) {
   const [stock, setStock] = useState(product?.stock?.toString() || '');
   const [threshold, setThreshold] = useState(product?.lowStockThreshold?.toString() || '3');
   const [isActive, setIsActive] = useState(product?.isActive ?? true);
+  
+  // Get unique product names from existing products (excluding current product if editing)
+  const productNames = useMemo(() => {
+    return Array.from(new Set(
+      existingProducts
+        .filter(p => !product || p.id !== product.id)
+        .map(p => p.name)
+    ));
+  }, [existingProducts, product]);
+  
+  // Filter suggestions based on input
+  const suggestions = useMemo(() => {
+    if (!name.trim() || !showSuggestions) return [];
+    return productNames.filter(pName =>
+      pName.toLowerCase().includes(name.toLowerCase())
+    );
+  }, [name, showSuggestions, productNames]);
 
   const handleSubmit = () => {
     if (!name || !costPrice || !sellingPrice) {
@@ -186,13 +219,33 @@ function ProductForm({ product, onClose, onSave, onDelete }: ProductFormProps) {
         <div className="space-y-4">
           <div>
             <label className="text-sm text-muted-foreground mb-1.5 block">Nom</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full h-12 px-4 bg-secondary rounded-xl border-none text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-              placeholder="Nom du produit"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                className="w-full h-12 px-4 bg-secondary rounded-xl border-none text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                placeholder="Nom du produit"
+              />
+              {suggestions.length > 0 && (
+                <div className="absolute top-14 left-0 right-0 bg-card border border-border rounded-xl shadow-lg z-10">
+                  {suggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => {
+                        setName(suggestion);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full px-4 py-2.5 text-left hover:bg-secondary text-foreground text-sm border-b border-border last:border-b-0 transition"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
