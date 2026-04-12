@@ -4,7 +4,7 @@ export function loadPWA() {
   const path = window.location.pathname;
   const isAdmin = path.startsWith('/admin');
   const manifestUrl = isAdmin ? '/manifest-admin.json' : '/manifest-worker.json';
-  const swScope = isAdmin ? '/admin/' : '/';
+  const swScope = '/';
 
   // Update document title for PWA name preview
   document.title = isAdmin ? 'admin' : 'worker';

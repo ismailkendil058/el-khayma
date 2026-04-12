@@ -1,11 +1,10 @@
-# PWA Implementation Complete ✅
+# PWA Admin Fix Task
 
-All steps done and tested:
-- Worker PWA: / → "worker"
-- Admin PWA: /admin → "admin"
-- Icons, iOS/Android support.
-- Dynamic manifest/SW registration.
-- Build & preview working.
-
-Test on http://localhost:4173/{path}. Ready for production.
+## Steps:
+- [x] Understand project files and issue (manifests, pwa.ts, router confirmed)
+- [x] Create and confirm edit plan (global SW scope)
+- [x] Step 1: Edit src/pwa.ts to set swScope = '/' always
+- [ ] Step 2: Test PWA install from /admin
+- [ ] Step 3: Verify launch opens at /admin
+- [ ] Complete task
 
